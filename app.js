@@ -3,6 +3,7 @@ const app = express();
 const ejs = require('ejs');
 const fs = require('fs');
 const path = require('path');
+const Notes = require('./models/notes');
 
 app.set("view engine" , "ejs");
 app.use(express.json());
@@ -17,7 +18,7 @@ app.get('/' , (req , res) =>{
 });
 
 app.get('/create' , (req , res) =>{
-    res.render('create')
+    res.render('create');
 })
 
 app.get('/edit/:filename' , (req , res)=>{
@@ -51,10 +52,15 @@ app.get('/edit/:filename' , (req , res) =>{
     })
 })
 
-app.post('/create' , (req , res) => {
-    fs.writeFile(`./files/${req.body.filename}` , `${req.body.details}` , (err) => {
-        console.log(err);
-    })
+app.post('/create' , async(req , res) => {
+    console.log(req.body);
+    const {filename , content } = req.body;
+        const newNote =  new Notes({
+            fileName : filename,
+            content : content
+        })
+
+       await newNote.save();
     res.redirect('/')
 })
 
