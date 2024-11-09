@@ -9,7 +9,8 @@
     <h1>Edit Note</h1>
     <form action="/edit/<%=filename%>" method="post">
         <p>Current Name : <%-filename%></p>
-        <input type="text" placeholder="<%=filename%>" name="newName">
+        <input type="text" placeholder="<%=filename%>" name="newName" value="<%=filename%>">
+        <input type="text" placeholder="<%=content%>" name="newContent" value="<%=content%>">
         <button type="submit">Update file name</button>
     </form>
 </body>
