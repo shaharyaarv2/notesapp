@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const ejs = require('ejs');
-const fs = require('fs');
 const path = require('path');
 const Notes = require('./models/notes');
 const mongoose = require('mongoose')
@@ -14,11 +13,19 @@ app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname , "public")));
 
 
-app.get('/' , (req , res) =>{
-    fs.readdir("./files" , (err , file)=>{
-        res.render('home' , {files: file})
-    })
+//view Routes
+
+app.get('/' , async(req , res) =>{
+    const allNotes = await Notes.find();
+    console.log(allNotes);
+    res.render('home' , {allNotes})
 });
+
+app.get('/view/:filename' , async(req , res) => {
+    const {filename} = req.params;
+    const  note = await Notes.findOne({filename : filename});
+    res.render('view' , {note});
+})
 
 //Create Routes
 
@@ -37,6 +44,9 @@ app.post('/create' , async(req , res) => {
        await newNote.save();
     res.redirect('/')
 })
+
+
+// Edit Routes
 
 app.get('/edit/:filename' , async (req , res)=>{
     const { filename } = req.params;
@@ -57,18 +67,16 @@ app.post('/edit/:filename' , async (req , res) =>{
     
 })
 
-app.get('/edit/:filename' , (req , res) =>{
-    fs.unlink(`./files/${filename}` , (err)=>{
-        if(err){
-            console.log(err)
-        }
-        else{
-            res.redirect('/')
-        }
-    })
+
+// Delete Routes
+
+app.get('/delete/:filename' , async(req , res) => {
+    console.log(req.params);
+    const {filename} = req.params;
+    console.log(filename);
+    await Notes.findOneAndDelete({filename : filename});
+    res.redirect('/')
 })
-
-
 
 
 
