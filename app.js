@@ -3,14 +3,59 @@ const app = express();
 const ejs = require('ejs');
 const path = require('path');
 const Notes = require('./models/notes');
-const mongoose = require('mongoose')
-mongoose.connect('mongodb://127.0.0.1:27017/notes');
+const User = require('./models/user');
+const req = require('express/lib/request');
+
 
 
 app.set("view engine" , "ejs");
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 app.use(express.static(path.join(__dirname , "public")));
+
+
+//Auth Routes
+
+app.get('/signup' , (req , res) =>{
+    res.render('signup');
+})
+
+app.post('/signup' , async (req, res) =>{
+    const {Email , Username , Password , Age} = req.body;
+    console.log(req.body)
+    const OldUser = await  User.findOne({Email : Email});
+    if(OldUser){
+        res.send("User Already Exist");
+    }
+    else{
+        const newUser =  new User({
+            Email :Email,
+            Username : Username, 
+            Password : Password,
+            Age: Age,
+        })
+        newUser.save();
+    }
+    res.render('login');
+    
+})
+
+app.get('/login' , (req , res) =>{
+    res.render('login');
+})
+
+app.post('/login' , (req , res) =>{
+    const {Email , Password} = req.body;
+    const getUser = User.findOne({Email : Email , Password : Password});
+    if(getUser){
+        res.redirect('/');
+    }
+    else{
+        res.send("Something Went Wrong");
+    }
+})
+
+
 
 
 //view Routes
